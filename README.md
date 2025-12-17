@@ -4,7 +4,7 @@
 Application complète de gestion de bibliothèque développée avec Spring Boot 3, incluant la gestion des utilisateurs, des ressources (livres, médias), des prêts, et des réservations.
 
 ## Auteur 
-** Projet réalisé dans le cadre académique par Ahmed Gafsi - Module Development web avancé **
+Projet réalisé dans le cadre académique par **Ahmed Gafsi** -Développement Web Avancé (DWA)
 
 ## Fonctionnalités Principales
 *   **Authentification & Sécurité** : Inscription, Connexion, Rôles (ADMIN, LIBRARIAN, USER).
