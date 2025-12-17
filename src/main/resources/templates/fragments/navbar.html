@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<div class="navbar" th:fragment="navbar">
+  <a class="brand" th:href="@{/}" sec:authorize="isAnonymous()">Bibliothèque</a>
+  <a class="brand" th:href="@{/user/dashboard}" sec:authorize="hasRole('USER')">Bibliothèque</a>
+  <a class="brand" th:href="@{/librarian}" sec:authorize="hasRole('LIBRARIAN')">Bibliothèque</a>
+  <a class="brand" th:href="@{/admin}" sec:authorize="hasRole('ADMIN')">Bibliothèque</a>
+  <div class="stack">
+    <span class="muted" sec:authorize="isAuthenticated()">Connecté: <span sec:authentication="name"></span></span>
+    <a class="btn btn-link" sec:authorize="isAuthenticated()" th:href="@{/user/profile}">Mon Profil</a>
+    <a class="btn btn-link" sec:authorize="isAuthenticated()" th:href="@{/logout}">Déconnexion</a>
+    <a class="btn btn-secondary" sec:authorize="isAnonymous()" th:href="@{/login}">Connexion</a>
+    <a class="btn btn-primary" sec:authorize="isAnonymous()" th:href="@{/register}">Inscription</a>
+  </div>
+</div>
+</body>
+</html>
+

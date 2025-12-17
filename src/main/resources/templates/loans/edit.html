@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <title>Modifier le Prêt</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div class="layout">
+  <aside th:replace="~{fragments/aside :: aside}"></aside>
+  <main class="main">
+    <div class="container">
+      <h1 class="title">Modifier le Prêt <span th:text="'#' + ${loan.loanNumber}"></span></h1>
+
+      <div class="card" style="max-width: 600px;">
+        <form th:action="@{'/loans/' + ${loan.id} + '/update'}" method="post">
+          
+          <div class="form-group">
+            <label class="label">Date de fin prévue (Due Date)</label>
+            <input type="datetime-local" name="dueDate" class="input"
+                   th:value="${loan.dueDate}" required>
+            <p class="text-sm muted">Modifiez cette date pour simuler un retard (mettez une date passée).</p>
+          </div>
+
+          <div class="form-group">
+            <label class="label">Statut</label>
+            <select name="status" class="input">
+              <option th:each="status : ${statuses}" 
+                      th:value="${status}" 
+                      th:text="${status}"
+                      th:selected="${status == loan.status}"></option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="label">Frais de retard (DT)</label>
+            <input type="number" step="0.5" name="lateFee" class="input"
+                   th:value="${loan.lateFee}">
+          </div>
+
+          <div class="stack" style="margin-top: 24px;">
+            <button type="submit" class="btn btn-primary">Enregistrer</button>
+            <a th:href="@{/loans/all}" class="btn btn-secondary">Annuler</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

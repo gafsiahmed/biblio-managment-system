@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <h3>Rappel de retour</h3>
+    <p>Bonjour <span th:text="${userName}">User</span>,</p>
+    <p>Ceci est un rappel que vous devez retourner <strong><span th:text="${resourceTitle}">Livre</span></strong> prochainement.</p>
+    <p>Date limite : <strong><span th:text="${dueDate}">Date</span></strong></p>
+    <p>Merci de respecter cette date pour éviter des frais de retard.</p>
+</body>
+</html>

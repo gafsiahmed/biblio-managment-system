@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <h3>Bonne nouvelle <span th:text="${userName}">User</span> !</h3>
+    <p>La ressource <strong><span th:text="${resourceTitle}">Livre</span></strong> est maintenant disponible pour vous.</p>
+    <p>Vous avez jusqu'au <strong><span th:text="${expiryDate}">Date</span></strong> pour venir la récupérer.</p>
+    <p>Passé ce délai, la réservation sera annulée et la ressource sera proposée à la personne suivante.</p>
+</body>
+</html>

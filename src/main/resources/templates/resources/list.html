@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <title>Ressources</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    .resource-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+      margin-top: 24px;
+    }
+    .resource-card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+    }
+    .resource-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    .resource-cover {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      background-color: #f1f5f9;
+    }
+    .resource-content {
+      padding: 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .resource-type {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #64748b;
+      margin-bottom: 8px;
+    }
+    .resource-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 4px;
+      line-height: 1.4;
+    }
+    .resource-author {
+      color: #64748b;
+      font-size: 0.875rem;
+      margin-bottom: 12px;
+    }
+    .resource-meta {
+      margin-top: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 12px;
+      border-top: 1px solid #f1f5f9;
+    }
+    .status-badge {
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      border-radius: 9999px;
+      font-weight: 500;
+    }
+    .status-available {
+      background-color: #dcfce7;
+      color: #166534;
+    }
+    .status-unavailable {
+      background-color: #fee2e2;
+      color: #991b1b;
+    }
+  </style>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div class="layout">
+  <aside th:replace="~{fragments/aside :: aside}"></aside>
+  <main class="main">
+    <div class="container">
+      <div class="header">
+        <h1 class="title">Catalogue</h1>
+        <div class="stack">
+          <a sec:authorize="hasAnyRole('ADMIN', 'LIBRARIAN')" class="btn btn-primary" th:href="@{/resources/new}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Nouvelle ressource
+          </a>
+          <a class="btn btn-secondary" th:href="@{/}">Retour</a>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom: 24px;">
+        <form class="grid" style="grid-template-columns: 1fr 1fr auto auto; gap: 16px; align-items: end;" th:action="@{/resources/search}" method="get">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="label">Rechercher</label>
+            <input class="input" type="text" name="query" th:value="${query}" placeholder="Titre, auteur, ISBN..."/>
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="label">Bibliothèque</label>
+            <select class="input" name="libraryId">
+              <option value="">Toutes les bibliothèques</option>
+              <option th:each="lib : ${libraries}" th:value="${lib.id}" th:text="${lib.name}" th:selected="${selectedLibrary == lib.id}">Lib Name</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" type="submit">Rechercher</button>
+          <a class="btn btn-link" th:href="@{/resources}">Effacer</a>
+        </form>
+      </div>
+
+      <div class="resource-grid">
+        <div class="resource-card" th:each="r : ${resources}">
+          <!-- Cover Image -->
+          <img th:if="${r.coverImage}" th:src="@{'/' + ${r.coverImage}}" class="resource-cover" alt="Cover"/>
+          <div th:unless="${r.coverImage}" class="resource-cover" style="display: flex; align-items: center; justify-content: center; background: #f8fafc;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          </div>
+
+          <div class="resource-content">
+            <div class="resource-type">
+              <span th:text="${r.category}">CATEGORY</span>
+              <span th:if="${r.library}" style="float: right; color: #3b82f6;" th:text="${r.library.city}">City</span>
+            </div>
+            <h3 class="resource-title">
+              <a th:href="@{'/resources/' + ${r.id}}" th:text="${r.title}" style="text-decoration: none; color: inherit;">Title</a>
+            </h3>
+            <div class="resource-author" th:text="${r.author}">Author Name</div>
+            
+            <div class="resource-meta">
+              <span th:if="${r.availableCopies > 0}" class="status-badge status-available">Disponible</span>
+              <span th:if="${r.availableCopies == 0}" class="status-badge status-unavailable">Indisponible</span>
+              <a class="btn btn-link" style="padding: 0; font-size: 0.875rem;" th:href="@{'/resources/' + ${r.id}}">Voir détails &rarr;</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="stack" style="margin-top: 32px; justify-content: center;" th:if="${resources.totalPages > 1}">
+        <a class="btn btn-secondary" th:if="${resources.hasPrevious()}" th:href="@{'/resources?page=' + ${resources.number-1}}">&larr; Précédent</a>
+        <span class="muted" style="align-self: center;">Page [[${resources.number + 1}]] sur [[${resources.totalPages}]]</span>
+        <a class="btn btn-secondary" th:if="${resources.hasNext()}" th:href="@{'/resources?page=' + ${resources.number+1}}">Suivant &rarr;</a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

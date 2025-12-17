@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${library.id == null ? 'Nouvelle Bibliothèque' : 'Modifier Bibliothèque'}">Bibliothèque</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div class="layout">
+    <aside th:replace="~{fragments/aside :: aside}"></aside>
+    <main class="main">
+        <div class="container">
+            <div class="header">
+                <div>
+                    <h1 class="title" th:text="${library.id == null ? 'Nouvelle Bibliothèque' : 'Modifier Bibliothèque'}">Bibliothèque</h1>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 24px; max-width: 800px; margin-left: auto; margin-right: auto;">
+                <form th:action="@{${library.id == null ? '/libraries' : '/libraries/' + library.id}}" 
+                      th:object="${library}" method="post">
+                    
+                    <div class="form-group">
+                        <label class="label">Nom de la bibliothèque</label>
+                        <input type="text" class="input" th:field="*{name}" required />
+                        <span class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+                    </div>
+
+                    <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
+                        <div class="form-group">
+                            <label class="label">Adresse</label>
+                            <input type="text" class="input" th:field="*{address}" />
+                        </div>
+                        <div class="form-group">
+                            <label class="label">Code Postal</label>
+                            <input type="text" class="input" th:field="*{postalCode}" />
+                        </div>
+                    </div>
+
+                    <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
+                        <div class="form-group">
+                            <label class="label">Ville</label>
+                            <input type="text" class="input" th:field="*{city}" />
+                        </div>
+                        <div class="form-group">
+                            <label class="label">Email</label>
+                            <input type="email" class="input" th:field="*{email}" />
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 16px;">
+                        <label class="label">Horaires d'ouverture</label>
+                        <input type="text" class="input" th:field="*{openingHours}" placeholder="ex: Lun-Ven 09:00-18:00" />
+                    </div>
+
+                    <div id="map" style="height: 400px; margin-top: 16px; border-radius: 8px; border: 1px solid #e2e8f0;"></div>
+
+                    <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
+                        <div class="form-group">
+                            <label class="label">Latitude</label>
+                            <input type="number" step="any" class="input" th:field="*{latitude}" id="latitude" readonly />
+                        </div>
+                        <div class="form-group">
+                            <label class="label">Longitude</label>
+                            <input type="number" step="any" class="input" th:field="*{longitude}" id="longitude" readonly />
+                        </div>
+                    </div>
+
+                    <div class="stack" style="margin-top: 24px;">
+                        <button class="btn btn-primary" type="submit">Enregistrer</button>
+                        <a class="btn btn-link" th:href="@{/libraries}">Annuler</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Map
+        // Default to Tunisia (approx center) if no coordinates, or world view
+        var latInput = document.getElementById('latitude');
+        var lngInput = document.getElementById('longitude');
+        
+        var initialLat = latInput.value ? parseFloat(latInput.value) : 34.0;
+        var initialLng = lngInput.value ? parseFloat(lngInput.value) : 9.0;
+        var initialZoom = latInput.value ? 13 : 6;
+
+        var map = L.map('map').setView([initialLat, initialLng], initialZoom);
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        var marker;
+
+        // If we have initial values, place marker
+        if (latInput.value && lngInput.value) {
+            marker = L.marker([initialLat, initialLng], {draggable: true}).addTo(map);
+            
+            marker.on('dragend', function(event) {
+                var position = marker.getLatLng();
+                latInput.value = position.lat;
+                lngInput.value = position.lng;
+            });
+        }
+
+        // Click handler
+        map.on('click', function(e) {
+            var lat = e.latlng.lat;
+            var lng = e.latlng.lng;
+
+            if (marker) {
+                marker.setLatLng(e.latlng);
+            } else {
+                marker = L.marker(e.latlng, {draggable: true}).addTo(map);
+                marker.on('dragend', function(event) {
+                    var position = marker.getLatLng();
+                    latInput.value = position.lat;
+                    lngInput.value = position.lng;
+                });
+            }
+
+            latInput.value = lat;
+            lngInput.value = lng;
+        });
+    });
+</script>
+</body>
+</html>

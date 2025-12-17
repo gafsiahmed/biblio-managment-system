@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Form Ressource</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div class="layout">
+  <aside th:replace="~{fragments/aside :: aside}"></aside>
+  <main class="main">
+    <div class="container grid">
+      <div class="header">
+        <h1 class="title" th:text="${resource.id} ? 'Modifier Ressource' : 'Nouvelle Ressource'">Nouvelle Ressource</h1>
+        <a class="btn btn-link" th:href="@{/resources}">Annuler</a>
+      </div>
+      <div class="card">
+        <form class="form" th:action="${resource.id} ? @{'/resources/' + ${resource.id}} : @{/resources}" th:object="${resource}" method="post">
+          
+          <div class="form-group">
+            <label>Type de ressource</label>
+            <select class="input" th:field="*{type}" id="resourceType" onchange="toggleFields()">
+              <option th:each="t : ${types}" th:value="${t}" th:text="${t.label}"></option>
+            </select>
+          </div>
+
+          <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label>Titre</label>
+              <input class="input" type="text" th:field="*{title}" required/>
+            </div>
+            <div class="form-group">
+              <label>Auteur</label>
+              <input class="input" type="text" th:field="*{author}"/>
+            </div>
+            <div class="form-group">
+              <label>Catégorie</label>
+              <select class="input" th:field="*{category}">
+                <option th:each="c : ${categories}" th:value="${c}" th:text="${c}"></option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>ISBN</label>
+              <input class="input" type="text" th:field="*{isbn}"/>
+            </div>
+            <div class="form-group">
+              <label>Année</label>
+              <input class="input" type="number" th:field="*{publicationYear}"/>
+            </div>
+            <div class="form-group">
+              <label>Editeur</label>
+              <input class="input" type="text" th:field="*{publisher}"/>
+            </div>
+            <div class="form-group">
+              <label>Langue</label>
+              <input class="input" type="text" th:field="*{language}"/>
+            </div>
+            <div class="form-group">
+              <label>Copies totales</label>
+              <input class="input" type="number" th:field="*{totalCopies}"/>
+            </div>
+            <div class="form-group">
+              <label>Copies dispo</label>
+              <input class="input" type="number" th:field="*{availableCopies}"/>
+            </div>
+            <div class="form-group">
+              <label>Bibliothèque</label>
+              <div th:if="${userLibrary != null}">
+                  <input type="hidden" th:field="*{libraryId}" />
+                  <input class="input" type="text" th:value="${userLibrary.name}" readonly disabled style="background-color: #f1f5f9; color: #64748b;" />
+                  <div class="muted" style="font-size: 0.8rem; margin-top: 4px;">Assigné automatiquement à votre bibliothèque</div>
+              </div>
+              <select th:unless="${userLibrary != null}" class="input" th:field="*{libraryId}" required>
+                <option value="">Sélectionner une bibliothèque</option>
+                <option th:each="lib : ${libraries}" th:value="${lib.id}" th:text="${lib.name}"></option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Book Specific Fields -->
+          <div id="bookFields" class="grid" style="grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
+            <div class="form-group">
+              <label>Edition</label>
+              <input class="input" type="text" th:field="*{edition}"/>
+            </div>
+            <div class="form-group">
+              <label>Volume</label>
+              <input class="input" type="text" th:field="*{volume}"/>
+            </div>
+            <div class="form-group">
+              <label>Série</label>
+              <input class="input" type="text" th:field="*{series}"/>
+            </div>
+            <div class="form-group">
+              <label>ISBN-13</label>
+              <input class="input" type="text" th:field="*{isbn13}"/>
+            </div>
+            <div class="form-group">
+              <label>ISBN-10</label>
+              <input class="input" type="text" th:field="*{isbn10}"/>
+            </div>
+          </div>
+
+          <!-- Digital Specific Fields -->
+          <div id="digitalFields" class="grid" style="grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; display: none;">
+            <div class="form-group">
+              <label>URL du fichier</label>
+              <input class="input" type="text" th:field="*{fileUrl}"/>
+            </div>
+            <div class="form-group">
+              <label>Format</label>
+              <input class="input" type="text" th:field="*{fileFormat}"/>
+            </div>
+            <div class="form-group">
+              <label>Taille (octets)</label>
+              <input class="input" type="number" th:field="*{fileSize}"/>
+            </div>
+            <div class="form-group">
+              <label>Streaming disponible</label>
+              <input type="checkbox" th:field="*{streamingAvailable}"/>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 16px;">
+            <label>Description</label>
+            <textarea class="textarea" th:field="*{description}"></textarea>
+          </div>
+
+          <div class="stack" style="margin-top: 24px;">
+            <button class="btn btn-primary" type="submit">Enregistrer</button>
+            <a class="btn btn-link" th:href="@{/resources}">Annuler</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+<script>
+  function toggleFields() {
+    const type = document.getElementById('resourceType').value;
+    const bookFields = document.getElementById('bookFields');
+    const digitalFields = document.getElementById('digitalFields');
+    
+    if (type === 'BOOK') {
+      bookFields.style.display = 'grid';
+      digitalFields.style.display = 'none';
+    } else {
+      bookFields.style.display = 'none';
+      digitalFields.style.display = 'grid';
+    }
+  }
+  
+  // Initialize
+  document.addEventListener('DOMContentLoaded', toggleFields);
+</script>
+</body>
+</html>

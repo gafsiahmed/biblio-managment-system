@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <h3>Bienvenue <span th:text="${userName}">User</span>,</h3>
+    <p>Votre compte a été créé par l'administrateur.</p>
+    <p>Voici vos identifiants de connexion :</p>
+    <ul>
+        <li>Nom d'utilisateur : <strong th:text="${loginName}">user</strong></li>
+        <li>Mot de passe : <strong th:text="${password}">pass</strong></li>
+    </ul>
+    <p>Veuillez cliquer sur le lien ci-dessous pour vérifier votre email et activer votre compte :</p>
+    <p><a th:href="${verificationLink}">Vérifier mon email</a></p>
+    <p>Si le lien ne fonctionne pas, copiez-collez l'URL suivante dans votre navigateur :</p>
+    <p th:text="${verificationLink}">http://link</p>
+</body>
+</html>

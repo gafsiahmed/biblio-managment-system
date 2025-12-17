@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <h3 style="color: red;">ALERTE RETARD</h3>
+    <p>Bonjour <span th:text="${userName}">User</span>,</p>
+    <p>Le prêt de <strong><span th:text="${resourceTitle}">Livre</span></strong> est en retard !</p>
+    <p>Date limite était le : <strong><span th:text="${dueDate}">Date</span></strong></p>
+    <p>Frais actuels estimés : <strong><span th:text="${fee}">0.0</span> DT</strong></p>
+    <p>Veuillez retourner la ressource le plus tôt possible.</p>
+</body>
+</html>

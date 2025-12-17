@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Mon espace</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div class="layout">
+  <aside th:replace="~{fragments/aside :: aside}"></aside>
+  <main class="main">
+    <div class="header">
+      <h1 class="title">Mon espace</h1>
+      <div class="stack">
+         <a class="btn btn-secondary" th:href="@{/user/profile}">Mon Profil</a>
+         <a class="btn btn-secondary" th:href="@{/user/password}">Mot de passe</a>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-stats" style="margin-bottom: 24px;">
+      <div class="card">
+        <div class="muted">Total Prêts</div>
+        <div class="title" th:text="${totalLoans}">0</div>
+      </div>
+      <div class="card">
+        <div class="muted">Retards</div>
+        <div class="title" style="color: red;" th:text="${overdueCount}">0</div>
+      </div>
+    </div>
+
+    <div class="stack-col" style="gap: 24px;">
+      
+      <!-- Active Loans -->
+      <div class="card">
+        <h3 class="title">Prêts en cours</h3>
+        <table class="table" style="width: 100%; border-collapse: collapse; margin-top: 16px;">
+           <thead>
+             <tr style="border-bottom: 1px solid #e2e8f0; text-align: left;">
+               <th style="padding: 8px;">Livre</th>
+               <th style="padding: 8px;">Date Prêt</th>
+               <th style="padding: 8px;">A rendre le</th>
+               <th style="padding: 8px;">Statut</th>
+             </tr>
+           </thead>
+           <tbody>
+             <tr th:each="loan : ${activeLoans}" style="border-bottom: 1px solid #f1f5f9;">
+               <td style="padding: 8px;" th:text="${loan.resource.title}">Titre</td>
+               <td style="padding: 8px;" th:text="${#temporals.format(loan.loanDate, 'dd/MM/yyyy')}">Date</td>
+               <td style="padding: 8px;">
+                 <span th:text="${#temporals.format(loan.dueDate, 'dd/MM/yyyy')}"
+                       th:style="${loan.status.name() == 'OVERDUE' ? 'color: red; font-weight: bold;' : ''}">Date</span>
+               </td>
+               <td style="padding: 8px;">
+                 <span class="badge" th:text="${loan.status}">STATUS</span>
+               </td>
+             </tr>
+             <tr th:if="${#lists.isEmpty(activeLoans)}">
+               <td colspan="4" style="padding: 16px; text-align: center; color: #64748b;">Aucun prêt en cours.</td>
+             </tr>
+           </tbody>
+        </table>
+      </div>
+
+      <!-- Reservations -->
+      <div class="card">
+        <h3 class="title">Réservations</h3>
+        <table class="table" style="width: 100%; border-collapse: collapse; margin-top: 16px;">
+           <thead>
+             <tr style="border-bottom: 1px solid #e2e8f0; text-align: left;">
+               <th style="padding: 8px;">Livre</th>
+               <th style="padding: 8px;">Date Demande</th>
+               <th style="padding: 8px;">Statut</th>
+             </tr>
+           </thead>
+           <tbody>
+             <tr th:each="res : ${reservations}" style="border-bottom: 1px solid #f1f5f9;">
+               <td style="padding: 8px;" th:text="${res.resource.title}">Titre</td>
+               <td style="padding: 8px;" th:text="${#temporals.format(res.reservationDate, 'dd/MM/yyyy HH:mm')}">Date</td>
+               <td style="padding: 8px;">
+                 <span class="badge" th:text="${res.status}">STATUS</span>
+               </td>
+             </tr>
+             <tr th:if="${#lists.isEmpty(reservations)}">
+               <td colspan="3" style="padding: 16px; text-align: center; color: #64748b;">Aucune réservation.</td>
+             </tr>
+           </tbody>
+        </table>
+      </div>
+
+      <!-- Suggestions -->
+      <div class="card">
+        <h3 class="title">Suggestions pour vous</h3>
+        <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 16px;">
+          <div th:each="res : ${suggestions}" style="border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px;">
+            <div style="font-weight: bold; margin-bottom: 4px;" th:text="${res.title}">Titre</div>
+            <div class="muted" style="font-size: 0.9em;" th:text="${res.author}">Auteur</div>
+            <div class="badge" style="margin-top: 8px; font-size: 0.8em;" th:text="${res.category}">Catégorie</div>
+            <a th:href="@{/resources/{id}(id=${res.id})}" class="btn btn-link" style="padding: 0; margin-top: 8px;">Voir</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- History -->
+      <div class="card">
+         <h3 class="title">Historique récent</h3>
+         <table class="table" style="width: 100%; border-collapse: collapse; margin-top: 16px;">
+           <thead>
+             <tr style="border-bottom: 1px solid #e2e8f0; text-align: left;">
+               <th style="padding: 8px;">Livre</th>
+               <th style="padding: 8px;">Emprunté le</th>
+               <th style="padding: 8px;">Retourné le</th>
+             </tr>
+           </thead>
+           <tbody>
+             <tr th:each="loan : ${history}" style="border-bottom: 1px solid #f1f5f9;">
+               <td style="padding: 8px;" th:text="${loan.resource.title}">Titre</td>
+               <td style="padding: 8px;" th:text="${#temporals.format(loan.loanDate, 'dd/MM/yyyy')}">Date</td>
+               <td style="padding: 8px;" th:text="${#temporals.format(loan.returnDate, 'dd/MM/yyyy')}">Date</td>
+             </tr>
+           </tbody>
+         </table>
+      </div>
+
+    </div>
+  </main>
+</div>
+</body>
+</html>

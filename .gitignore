@@ -1,0 +1,29 @@
+# Maven build output
+target/
+
+# Logs
+*.log
+
+# IDEs
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Spring Boot
+application-*.yml
+application-*.yaml
+application-*.properties
+.env
+
+# Local tooling
+.mvn/
+

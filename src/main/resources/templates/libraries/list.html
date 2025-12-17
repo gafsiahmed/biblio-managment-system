@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestion des Bibliothèques</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div class="layout">
+    <aside th:replace="~{fragments/aside :: aside}"></aside>
+    <main class="main">
+        <div class="container">
+            <div class="header">
+                <div>
+                    <h1 class="title">Bibliothèques</h1>
+                    <p class="subtitle">Gérer le réseau de bibliothèques</p>
+                </div>
+                <a th:href="@{/libraries/new}" class="btn btn-primary">Nouvelle Bibliothèque</a>
+            </div>
+
+            <div class="card" style="margin-top: 24px;">
+                <table class="table" style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                    <tr style="text-align: left; border-bottom: 1px solid #e2e8f0;">
+                        <th style="padding: 12px;">Nom</th>
+                        <th style="padding: 12px;">Ville</th>
+                        <th style="padding: 12px;">Adresse</th>
+                        <th style="padding: 12px;">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="lib : ${libraries}" style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="padding: 12px;" th:text="${lib.name}">Nom</td>
+                        <td style="padding: 12px;" th:text="${lib.city}">Ville</td>
+                        <td style="padding: 12px;" th:text="${lib.address}">Adresse</td>
+                        <td style="padding: 12px;">
+                            <div class="stack" style="gap: 8px;">
+                                <a th:href="@{/libraries/{id}/edit(id=${lib.id})}" class="btn btn-link">Modifier</a>
+                                <a th:href="@{/libraries/{id}/delete(id=${lib.id})}" class="btn btn-link" style="color: #ef4444;"
+                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette bibliothèque ?')">Supprimer</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(libraries)}">
+                        <td colspan="4" style="text-align: center; color: #64748b; padding: 24px;">Aucune bibliothèque trouvée.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

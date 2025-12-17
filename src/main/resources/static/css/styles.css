@@ -1,0 +1,184 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@100..800&display=swap');
+
+:root {
+  --ink: #213448;
+  --sea: #547792;
+  --mist: #94B4C1;
+  --sand: #EAE0CF;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: 'Sora', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  color: var(--ink);
+  background: var(--sand);
+}
+
+a { color: var(--sea); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.title { font-size: 1.5rem; margin: 0; }
+
+.card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: 24px;
+  height: fit-content;
+  display: flex;
+  flex-direction: column;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-primary { background: var(--sea); color: #fff; }
+.btn-secondary { background: var(--mist); color: var(--ink); }
+.btn-danger { background: #b34b4b; color: #fff; }
+.btn-link { background: transparent; color: var(--sea); padding: 0; }
+
+/* Dashboard Grid */
+.grid-dashboard {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+}
+
+.grid-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+/* Chart container */
+.chart-container {
+  position: relative;
+  height: 300px;
+  width: 100%;
+}
+
+@media (max-width: 1024px) {
+  .grid-dashboard {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .layout {
+    display: block; /* Stack sidebar and main */
+  }
+  .aside {
+    display: none; /* Hide sidebar on mobile for now, or make it toggleable */
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  /* Optional: Show sidebar if we had a toggle */
+  
+  .grid-dashboard, .grid-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
+
+.table th, .table td {
+  padding: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+.table thead th { text-align: left; color: var(--sea); font-weight: 700; }
+
+.form { display: grid; gap: 12px; }
+.form-group { display: grid; gap: 6px; }
+.form-group label { font-weight: 600; }
+.input, .textarea, .select {
+  width: 100%;
+  border: 1px solid #d6d9de;
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #fff;
+  font: inherit;
+}
+.textarea { min-height: 120px; }
+
+.stack { display: flex; gap: 10px; align-items: center; }
+.stack-col { display: flex; flex-direction: column; gap: 16px; align-items: stretch; }
+.spacer { height: 12px; }
+
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: var(--mist);
+  color: var(--ink);
+  font-size: 0.85rem;
+}
+
+.muted { color: #708090; }
+
+/* Layout & Nav */
+.navbar { display:flex; align-items:center; justify-content:space-between; padding:12px 24px; background:#fff; border-bottom:1px solid #e5e7eb; }
+.brand { font-weight:800; color: var(--sea); }
+.layout { display:grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 64px); }
+.aside { background: #f8f9fa; border-right: 1px solid #e5e7eb; padding: 16px; }
+.aside a { display:block; padding:8px 10px; border-radius:10px; }
+.aside a:hover { background: #eef2f7; }
+.main { padding: 24px; }
+
+/* Dropdown */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  background-color: #fff;
+  min-width: 200px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  z-index: 10;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+.dropdown-content a {
+  color: var(--ink);
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  font-size: 0.9em;
+}
+
+.dropdown-content a:hover { background-color: #f8f9fa; }
+
+.dropdown:hover .dropdown-content { display: block; }

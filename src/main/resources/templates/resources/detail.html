@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${resource.title}">Détail</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 32px;
+    }
+    @media (max-width: 768px) {
+      .detail-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .cover-image {
+      width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      background: #f1f5f9;
+      aspect-ratio: 2/3;
+      object-fit: cover;
+    }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid #e2e8f0;
+    }
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+    }
+    .meta-label {
+      font-size: 0.875rem;
+      color: #64748b;
+      margin-bottom: 4px;
+    }
+    .meta-value {
+      font-weight: 500;
+      color: #1e293b;
+    }
+    #map {
+      height: 300px;
+      width: 100%;
+      border-radius: 12px;
+      margin-top: 16px;
+      z-index: 1;
+    }
+  </style>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div class="layout">
+  <aside th:replace="~{fragments/aside :: aside}"></aside>
+  <main class="main">
+    <div class="container">
+      <div class="header">
+        <div class="stack">
+          <a class="btn btn-link" th:href="@{/resources}">&larr; Retour au catalogue</a>
+        </div>
+        <div class="stack" th:if="${canEdit}">
+          <a class="btn btn-secondary" th:href="@{'/resources/' + ${resource.id} + '/edit'}">Modifier</a>
+          <form th:action="@{'/resources/' + ${resource.id}}" method="post" sec:authorize="hasRole('ADMIN')" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette ressource ?');">
+            <input type="hidden" name="_method" value="DELETE"/>
+            <button class="btn btn-danger" type="submit" style="background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca;">Supprimer</button>
+          </form>
+          <form th:action="@{'/resources/' + ${resource.id}}" method="post" sec:authorize="hasRole('LIBRARIAN')" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette ressource ?');">
+              <input type="hidden" name="_method" value="DELETE"/>
+              <button class="btn btn-danger" type="submit" style="background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca;">Supprimer</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="card detail-grid">
+        <!-- Left Column: Image & Actions -->
+        <div>
+          <img th:if="${resource.coverImage}" th:src="@{'/' + ${resource.coverImage}}" class="cover-image" alt="Couverture"/>
+          <div th:unless="${resource.coverImage}" class="cover-image" style="display: flex; align-items: center; justify-content: center;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          </div>
+
+          <!-- Upload Form (Admin/Librarian only) -->
+          <div class="stack" style="margin-top: 16px;" th:if="${canEdit}">
+            <form th:action="@{'/resources/' + ${resource.id} + '/upload-cover'}" method="post" enctype="multipart/form-data" class="stack" style="width: 100%;">
+              <div class="form-group" style="margin-bottom: 8px;">
+                <label class="label" style="font-size: 0.875rem;">Changer la couverture</label>
+                <input class="input" type="file" name="file" accept="image/*" required style="font-size: 0.875rem;"/>
+              </div>
+              <button class="btn btn-secondary" type="submit" style="width: 100%;">Uploader</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Right Column: Info -->
+        <div>
+          <div class="stack">
+            <span class="badge" th:text="${resource.category}">Catégorie</span>
+            <span th:if="${resource.availableCopies > 0}" class="badge" style="background: #dcfce7; color: #166534;">Disponible</span>
+            <span th:if="${resource.availableCopies == 0}" class="badge" style="background: #fee2e2; color: #991b1b;">Indisponible</span>
+          </div>
+
+          <h1 class="title" style="margin-top: 16px; font-size: 2rem;" th:text="${resource.title}">Titre de la ressource</h1>
+          <p class="subtitle" style="font-size: 1.25rem; color: #64748b; margin-top: 8px;" th:text="${resource.author}">Auteur</p>
+
+          <div style="margin-top: 24px;">
+            <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 8px;">Description</h3>
+            <p style="color: #475569; line-height: 1.6;" th:text="${resource.description}">Aucune description disponible.</p>
+          </div>
+
+          <!-- Reserve Action for Users -->
+          <div class="stack" style="margin-top: 24px;" sec:authorize="hasRole('USER')">
+            <form th:action="@{'/loans/reserve/' + ${resource.id}}" method="post" style="width: 100%;">
+              <button th:if="${resource.availableCopies > 0}" class="btn btn-primary" type="submit" style="width: 100%; justify-content: center;">Emprunter maintenant</button>
+              <button th:if="${resource.availableCopies == 0}" class="btn btn-secondary" type="submit" style="width: 100%; justify-content: center;">Rejoindre la file d'attente</button>
+            </form>
+          </div>
+
+          <div class="meta-grid">
+            <div class="meta-item">
+              <span class="meta-label">ISBN</span>
+              <span class="meta-value" th:text="${resource.isbn ?: '-'}"></span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Année</span>
+              <span class="meta-value" th:text="${resource.publicationYear ?: '-'}"></span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Éditeur</span>
+              <span class="meta-value" th:text="${resource.publisher ?: '-'}"></span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Langue</span>
+              <span class="meta-value" th:text="${resource.language ?: '-'}"></span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Exemplaires</span>
+              <span class="meta-value">[[${resource.availableCopies}]] / [[${resource.totalCopies}]]</span>
+            </div>
+          </div>
+
+          <div th:if="${resource.library}" style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #e2e8f0;">
+            <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 12px;">Localisation</h3>
+            <p style="margin-bottom: 8px;">
+              <strong th:text="${resource.library.name}">Library Name</strong><br/>
+              <span th:text="${resource.library.address}">Address</span><br/>
+              <span th:text="${resource.library.postalCode} + ' ' + ${resource.library.city}">City</span>
+            </p>
+            <div id="map"></div>
+            <script th:inline="javascript">
+              document.addEventListener('DOMContentLoaded', function() {
+                var lat = [[${resource.library.latitude}]] || 48.8566
+                var lng = [[${resource.library.longitude}]] || 2.3522;
+                var name = [[${resource.library.name}]];
+                
+                var map = L.map('map').setView([lat, lng], 13);
+                
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(map);
+                
+                L.marker([lat, lng]).addTo(map)
+                  .bindPopup(name)
+                  .openPopup();
+              });
+            </script>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

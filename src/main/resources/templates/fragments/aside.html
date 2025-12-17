@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<div class="aside" th:fragment="aside">
+  <div class="muted">Navigation</div>
+  <div class="spacer"></div>
+  
+  <!-- Dashboard Links -->
+  <a th:href="@{/user/dashboard}" sec:authorize="hasRole('USER')" style="font-weight: 600; color: var(--ink);">Tableau de bord</a>
+  <a th:href="@{/librarian}" sec:authorize="hasRole('LIBRARIAN')" style="font-weight: 600; color: var(--ink);">Tableau de bord</a>
+  <a th:href="@{/admin}" sec:authorize="hasRole('ADMIN')" style="font-weight: 600; color: var(--ink);">Tableau de bord</a>
+  
+  <a th:href="@{/}">Accueil</a>
+  <a th:href="@{/resources}">Ressources</a>
+
+  <!-- User Links -->
+  <a th:href="@{/loans/my-loans}" sec:authorize="hasRole('USER')">Mes Prêts</a>
+
+  <!-- Librarian/Admin Links -->
+  <div class="muted" style="margin-top: 16px;" sec:authorize="hasAnyRole('LIBRARIAN','ADMIN')">Gestion</div>
+  <div class="spacer" sec:authorize="hasAnyRole('LIBRARIAN','ADMIN')"></div>
+  <a th:href="@{/resources/new}" sec:authorize="hasAnyRole('LIBRARIAN','ADMIN')">Ajouter Ressource</a>
+  <a th:href="@{/librarian/my-resources}" sec:authorize="hasRole('LIBRARIAN')">Mes Ressources</a>
+  <a th:href="@{/loans/all}" sec:authorize="hasAnyRole('LIBRARIAN','ADMIN')">Tous les prêts</a>
+      <a th:href="@{/loans/pending}" sec:authorize="hasAnyRole('LIBRARIAN','ADMIN')">Prêts en attente</a>
+  <a th:href="@{/loans/overdue}" sec:authorize="hasAnyRole('LIBRARIAN','ADMIN')">Prêts en retard</a>
+  <a th:href="@{/librarian}" sec:authorize="hasRole('LIBRARIAN')">Espace bibliothécaire</a>
+  <a th:href="@{/users}" sec:authorize="hasRole('ADMIN')">Utilisateurs</a>
+  <a th:href="@{/libraries}" sec:authorize="hasRole('ADMIN')">Bibliothèques</a>
+  <a th:href="@{/admin}" sec:authorize="hasRole('ADMIN')">Admin</a>
+</div>
+</body>
+</html>
+

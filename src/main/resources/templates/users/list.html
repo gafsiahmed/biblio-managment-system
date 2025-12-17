@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestion des Utilisateurs</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div class="layout">
+    <aside th:replace="~{fragments/aside :: aside}"></aside>
+    <main class="main">
+        <div class="container">
+            <div class="header">
+                <div>
+                    <h1 class="title">Utilisateurs</h1>
+                    <p class="subtitle">Gérer les comptes utilisateurs</p>
+                </div>
+                <a th:href="@{/users/new}" class="btn btn-primary">Nouvel Utilisateur</a>
+            </div>
+
+            <div class="card" style="margin-top: 24px;">
+                <table class="table" style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                    <tr style="text-align: left; border-bottom: 1px solid #e2e8f0;">
+                        <th style="padding: 12px;">Username</th>
+                        <th style="padding: 12px;">Email</th>
+                        <th style="padding: 12px;">Rôle</th>
+                        <th style="padding: 12px;">Bibliothèque</th>
+                        <th style="padding: 12px;">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="u : ${users}" style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="padding: 12px;" th:text="${u.username}">Username</td>
+                        <td style="padding: 12px;" th:text="${u.email}">Email</td>
+                        <td style="padding: 12px;">
+                            <span class="badge" th:text="${u.role}">ROLE</span>
+                        </td>
+                        <td style="padding: 12px;">
+                            <span th:if="${u.library != null}" th:text="${u.library.name}">Biblio</span>
+                            <span th:if="${u.library == null}" class="muted">-</span>
+                        </td>
+                        <td style="padding: 12px;">
+                            <div class="stack" style="gap: 8px;">
+                                <a th:href="@{/users/{id}/edit(id=${u.id})}" class="btn btn-link">Modifier</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(users)}">
+                        <td colspan="5" style="text-align: center; color: #64748b; padding: 24px;">Aucun utilisateur trouvé.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

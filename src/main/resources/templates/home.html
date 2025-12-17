@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Accueil</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="layout">
+  <aside th:replace="~{fragments/aside :: aside}"></aside>
+  <main class="main">
+    <div class="welcome">
+      <h1 class="title">Bienvenue</h1>
+      <span class="badge">Catalogue</span>
+    </div>
+    <div class="spacer"></div>
+    <div class="grid" style="grid-template-columns: repeat(3, 1fr);">
+      <div class="card">
+        <h3 class="title">Rechercher</h3>
+        <p class="muted">Parcourez le catalogue et trouvez vos ouvrages.</p>
+        <a class="btn btn-primary" th:href="@{/resources}">Voir les ressources</a>
+      </div>
+      <div class="card">
+        <h3 class="title">Nouveautés</h3>
+        <p class="muted">Dernières acquisitions et ressources numériques.</p>
+        <a class="btn btn-secondary" th:href="@{/resources}">Explorer</a>
+      </div>
+      <div class="card">
+        <h3 class="title">Mon espace</h3>
+        <p class="muted">Suivez vos prêts et réservations.</p>
+        <a class="btn btn-link" th:href="@{/user}" th:if="${authenticated}">Accéder</a>
+        <span class="muted" th:if="${!authenticated}">Connectez-vous pour accéder.</span>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

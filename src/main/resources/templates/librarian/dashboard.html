@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Espace Bibliothécaire</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div class="layout">
+  <aside th:replace="~{fragments/aside :: aside}"></aside>
+  <main class="main">
+    <div class="header">
+      <h1 class="title">Tableau de bord Bibliothécaire</h1>
+      <div class="stack">
+         <a class="btn btn-primary" th:href="@{/loans/all}">Tous les prêts</a>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-stats" style="margin-bottom: 24px;">
+      <div class="card">
+        <div class="muted">Total Prêts</div>
+        <div class="title" th:text="${totalLoans}">0</div>
+      </div>
+      <div class="card">
+        <div class="muted">Prêts Actifs</div>
+        <div class="title" style="color: blue;" th:text="${activeLoansCount}">0</div>
+      </div>
+      <div class="card">
+        <div class="muted">Retards</div>
+        <div class="title" style="color: red;" th:text="${overdueLoans.size()}">0</div>
+      </div>
+    </div>
+
+    <div class="stack-col" style="gap: 24px;">
+      
+      <!-- To Validate -->
+      <div class="card">
+        <h3 class="title">Prêts à valider (Demandes)</h3>
+        <table class="table" style="width: 100%; border-collapse: collapse; margin-top: 16px;">
+           <thead>
+             <tr style="border-bottom: 1px solid #e2e8f0; text-align: left;">
+               <th style="padding: 8px;">Utilisateur</th>
+               <th style="padding: 8px;">Livre</th>
+               <th style="padding: 8px;">Date Demande</th>
+               <th style="padding: 8px;">Actions</th>
+             </tr>
+           </thead>
+           <tbody>
+             <tr th:each="loan : ${toValidate}" style="border-bottom: 1px solid #f1f5f9;">
+               <td style="padding: 8px;" th:text="${loan.user.username}">User</td>
+               <td style="padding: 8px;" th:text="${loan.resource.title}">Titre</td>
+               <td style="padding: 8px;" th:text="${#temporals.format(loan.reservationDate, 'dd/MM/yyyy HH:mm')}">Date</td>
+               <td style="padding: 8px;">
+                 <form th:action="@{/loans/{id}/approve(id=${loan.id})}" method="post" style="display:inline;">
+                   <button class="btn btn-primary" style="padding: 4px 8px; font-size: 0.8em;">Valider</button>
+                 </form>
+               </td>
+             </tr>
+             <tr th:if="${#lists.isEmpty(toValidate)}">
+               <td colspan="4" style="padding: 16px; text-align: center; color: #64748b;">Aucune demande en attente.</td>
+             </tr>
+           </tbody>
+        </table>
+      </div>
+
+      <!-- Returns Expected Today -->
+      <div class="card">
+        <h3 class="title">Retours attendus aujourd'hui</h3>
+        <table class="table" style="width: 100%; border-collapse: collapse; margin-top: 16px;">
+           <thead>
+             <tr style="border-bottom: 1px solid #e2e8f0; text-align: left;">
+               <th style="padding: 8px;">Utilisateur</th>
+               <th style="padding: 8px;">Livre</th>
+               <th style="padding: 8px;">Date Limite</th>
+               <th style="padding: 8px;">Actions</th>
+             </tr>
+           </thead>
+           <tbody>
+             <tr th:each="loan : ${returnsExpected}" style="border-bottom: 1px solid #f1f5f9;">
+               <td style="padding: 8px;" th:text="${loan.user.username}">User</td>
+               <td style="padding: 8px;" th:text="${loan.resource.title}">Titre</td>
+               <td style="padding: 8px;" th:text="${#temporals.format(loan.dueDate, 'dd/MM/yyyy')}">Date</td>
+               <td style="padding: 8px;">
+                 <form th:action="@{/loans/{id}/return(id=${loan.id})}" method="post" style="display:inline;">
+                   <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.8em;">Retour</button>
+                 </form>
+               </td>
+             </tr>
+             <tr th:if="${#lists.isEmpty(returnsExpected)}">
+               <td colspan="4" style="padding: 16px; text-align: center; color: #64748b;">Aucun retour prévu aujourd'hui.</td>
+             </tr>
+           </tbody>
+        </table>
+      </div>
+
+      <!-- Pending Reservations -->
+      <div class="card">
+        <h3 class="title">Réservations en attente (File d'attente)</h3>
+        <table class="table" style="width: 100%; border-collapse: collapse; margin-top: 16px;">
+           <thead>
+             <tr style="border-bottom: 1px solid #e2e8f0; text-align: left;">
+               <th style="padding: 8px;">Utilisateur</th>
+               <th style="padding: 8px;">Livre</th>
+               <th style="padding: 8px;">Date</th>
+               <th style="padding: 8px;">Position</th>
+             </tr>
+           </thead>
+           <tbody>
+             <tr th:each="res : ${pendingReservations}" style="border-bottom: 1px solid #f1f5f9;">
+               <td style="padding: 8px;" th:text="${res.user.username}">User</td>
+               <td style="padding: 8px;" th:text="${res.resource.title}">Titre</td>
+               <td style="padding: 8px;" th:text="${#temporals.format(res.reservationDate, 'dd/MM/yyyy HH:mm')}">Date</td>
+               <td style="padding: 8px;" th:text="${res.positionInQueue}">1</td>
+             </tr>
+             <tr th:if="${#lists.isEmpty(pendingReservations)}">
+               <td colspan="4" style="padding: 16px; text-align: center; color: #64748b;">Aucune réservation en file d'attente.</td>
+             </tr>
+           </tbody>
+        </table>
+      </div>
+
+    </div>
+  </main>
+</div>
+</body>
+</html>

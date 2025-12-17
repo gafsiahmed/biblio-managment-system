@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <h3>Bonjour <span th:text="${userName}">User</span>,</h3>
+    <p>Votre réservation pour <strong><span th:text="${resourceTitle}">Livre</span></strong> a été confirmée.</p>
+    <p>Numéro de réservation : <span th:text="${reservationNumber}">123</span></p>
+    <p>Votre position dans la file d'attente : <strong><span th:text="${position}">1</span></strong></p>
+    <p>Vous serez notifié dès que la ressource sera disponible.</p>
+</body>
+</html>

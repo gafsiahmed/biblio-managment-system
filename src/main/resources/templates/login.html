@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div class="container grid">
+  <div class="header">
+    <h1 class="title">Connexion</h1>
+    <a class="btn btn-link" th:href="@{/}">Accueil</a>
+  </div>
+
+  <div class="card">
+    <div class="spacer"></div>
+    <div class="muted" th:if="${param.registered}">Inscription réussie, vérifiez votre email</div>
+    <div class="muted" th:if="${param.verified}">Email vérifié, vous pouvez vous connecter</div>
+    <div class="badge" th:if="${param.error}">Identifiants invalides</div>
+    <div class="spacer"></div>
+    <form class="form" th:action="@{/login}" method="post">
+      <div class="form-group">
+        <label>Username ou Email</label>
+        <input class="input" type="text" name="username"/>
+      </div>
+      <div class="form-group">
+        <label>Mot de passe</label>
+        <input class="input" type="password" name="password"/>
+      </div>
+      <div class="stack">
+        <button class="btn btn-primary" type="submit">Se connecter</button>
+        <a class="btn btn-link" th:href="@{/register}">Créer un compte</a>
+      </div>
+    </form>
+  </div>
+</div>
+</body>
+</html>

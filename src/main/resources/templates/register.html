@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Register</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div class="container grid">
+  <div class="header">
+    <h1 class="title">Inscription</h1>
+    <a class="btn btn-link" th:href="@{/}">Accueil</a>
+  </div>
+  <div class="card">
+    <div class="badge" th:if="${error}" th:text="${error}"></div>
+    <form class="form" th:action="@{/register}" th:object="${register}" method="post">
+      <div class="form-group">
+        <label>Nom d'utilisateur</label>
+        <input class="input" type="text" th:field="*{username}"/>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input class="input" type="email" th:field="*{email}"/>
+      </div>
+      <div class="form-group">
+        <label>Mot de passe</label>
+        <input class="input" type="password" th:field="*{password}"/>
+      </div>
+      <div class="grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="form-group">
+          <label>Prénom</label>
+          <input class="input" type="text" th:field="*{firstName}"/>
+        </div>
+        <div class="form-group">
+          <label>Nom</label>
+          <input class="input" type="text" th:field="*{lastName}"/>
+        </div>
+      </div>
+      <div class="stack">
+        <button class="btn btn-primary" type="submit">S'inscrire</button>
+        <a class="btn btn-link" th:href="@{/login}">Déjà inscrit ?</a>
+      </div>
+    </form>
+  </div>
+</div>
+</body>
+</html>

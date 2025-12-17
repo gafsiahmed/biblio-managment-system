@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <title>Prêts en attente</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    .status-badge {
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      border-radius: 9999px;
+      font-weight: 500;
+      display: inline-block;
+    }
+    .status-RESERVED { background-color: #e0f2fe; color: #0369a1; }
+  </style>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div class="layout">
+  <aside th:replace="~{fragments/aside :: aside}"></aside>
+  <main class="main">
+    <div class="container">
+      <div class="header">
+        <h1 class="title">Réservations en attente</h1>
+        <div class="stack">
+          <a class="btn btn-secondary" th:href="@{/loans/overdue}">Voir les retards</a>
+        </div>
+      </div>
+
+      <div th:if="${success}" class="alert alert-success" style="background: #dcfce7; color: #166534; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+        <span th:text="${success}"></span>
+      </div>
+      <div th:if="${error}" class="alert alert-error" style="background: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+        <span th:text="${error}"></span>
+      </div>
+
+      <div class="card">
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; min-width: 800px;">
+            <thead>
+              <tr style="border-bottom: 2px solid #f1f5f9; text-align: left;">
+                <th style="padding: 12px;">N° Prêt</th>
+                <th style="padding: 12px;">Utilisateur</th>
+                <th style="padding: 12px;">Livre</th>
+                <th style="padding: 12px;">Date Réservation</th>
+                <th style="padding: 12px;">Statut</th>
+                <th style="padding: 12px; text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="loan : ${loans}" style="border-bottom: 1px solid #f1f5f9;">
+                <td style="padding: 12px;" th:text="${loan.loanNumber}">#</td>
+                <td style="padding: 12px;">
+                   <div th:text="${loan.user.firstName + ' ' + loan.user.lastName}">User</div>
+                   <div style="font-size: 0.875rem; color: #64748b;" th:text="${loan.user.email}">email</div>
+                </td>
+                <td style="padding: 12px;">
+                  <div style="font-weight: 500;" th:text="${loan.resource.title}">Title</div>
+                </td>
+                <td style="padding: 12px;" th:text="${#temporals.format(loan.reservationDate, 'dd/MM/yyyy HH:mm')}"></td>
+                <td style="padding: 12px;">
+                  <span class="status-badge status-RESERVED" th:text="${loan.status}">RESERVED</span>
+                </td>
+                <td style="padding: 12px; text-align: right;">
+                  <form th:action="@{'/loans/' + ${loan.id} + '/approve'}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-primary" style="font-size: 0.875rem;">Valider</button>
+                  </form>
+                </td>
+              </tr>
+              <tr th:if="${#lists.isEmpty(loans)}">
+                <td colspan="6" style="padding: 24px; text-align: center; color: #64748b;">
+                  Aucune réservation en attente.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Recherche Avancée - Bibliothèque</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/search.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div class="layout">
+  <aside th:replace="~{fragments/aside :: aside}"></aside>
+  <main class="main">
+      <div class="header">
+        <h1 class="title" th:text="${isLibrarianView == true} ? 'Mes Ressources' : 'Catalogue'">Catalogue</h1>
+        <div class="stack">
+            <a sec:authorize="hasAnyRole('ADMIN', 'LIBRARIAN')" class="btn btn-primary" th:href="@{/resources/new}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Nouvelle ressource
+          </a>
+      </div>
+    </div>
+
+    <!-- Search Form -->
+    <form th:action="${isLibrarianView == true} ? @{/librarian/my-resources} : @{/resources}" method="get" th:object="${request}" class="search-container">
+      <div class="filters-grid">
+        <!-- Text Search -->
+        <div class="form-group">
+          <label>Mots-clés</label>
+          <input type="text" th:field="*{query}" class="input" placeholder="Titre, ISBN...">
+        </div>
+        
+        <!-- Author -->
+        <div class="form-group">
+          <label>Auteur</label>
+          <input type="text" th:field="*{author}" class="input" placeholder="Nom de l'auteur">
+        </div>
+
+        <!-- Library -->
+        <div class="form-group" th:if="${isLibrarianView != true}">
+          <label>Bibliothèque</label>
+          <select th:field="*{libraryId}" class="select">
+            <option value="">Toutes les bibliothèques</option>
+            <option th:each="lib : ${libraries}" th:value="${lib.id}" th:text="${lib.name}"></option>
+          </select>
+        </div>
+        <input type="hidden" th:if="${isLibrarianView == true}" th:field="*{libraryId}" />
+
+        <!-- Category -->
+        <div class="form-group">
+          <label>Catégorie</label>
+          <select th:field="*{category}" class="select">
+            <option value="">Toutes les catégories</option>
+            <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}"></option>
+          </select>
+        </div>
+
+        <!-- Availability -->
+        <div class="form-group" style="justify-content: end;">
+           <label class="stack">
+             <input type="checkbox" th:field="*{available}" style="width: 20px; height: 20px;">
+             <span>Disponible uniquement</span>
+           </label>
+        </div>
+
+        <!-- Year Range -->
+        <div class="form-group">
+          <label>Année (Min - Max)</label>
+          <div class="stack">
+            <input type="number" th:field="*{yearMin}" class="input" placeholder="Min">
+            <input type="number" th:field="*{yearMax}" class="input" placeholder="Max">
+          </div>
+        </div>
+
+        <!-- Sort -->
+        <div class="form-group">
+          <label>Trier par</label>
+          <div class="stack">
+              <select th:field="*{sort}" class="select">
+                <option value="title">Titre</option>
+                <option value="author">Auteur</option>
+                <option value="date">Date de publication</option>
+                <option value="popularity">Popularité</option>
+              </select>
+              <select th:field="*{direction}" class="select" style="width: auto;">
+                <option value="asc">Asc</option>
+                <option value="desc">Desc</option>
+              </select>
+          </div>
+        </div>
+      </div>
+      
+      <div class="stack" style="margin-top: 16px; justify-content: flex-end;">
+        <a th:href="${isLibrarianView == true} ? @{/librarian/my-resources} : @{/resources}" class="btn btn-link">Réinitialiser</a>
+        <button type="submit" class="btn btn-primary">Rechercher</button>
+      </div>
+    </form>
+
+    <!-- Results -->
+    <div th:if="${resources.totalElements == 0}" class="card" style="text-align: center; padding: 48px;">
+        <div class="muted">Aucun résultat trouvé pour vos critères.</div>
+    </div>
+
+    <div class="results-grid">
+      <div th:each="resource : ${resources}" class="resource-card">
+         <div class="resource-img" th:style="${resource.coverImage != null} ? 'background-image: url(' + @{${resource.coverImage}} + '); background-size: cover; background-position: center;' : ''">
+             <span th:if="${resource.coverImage == null}">
+                 <span th:if="${resource.category.name() == 'BOOK'}">📚</span>
+                 <span th:if="${resource.category.name() == 'MAGAZINE'}">📰</span>
+                 <span th:if="${resource.category.name() == 'NEWSPAPER'}">🗞️</span>
+                 <span th:if="${resource.category.name() == 'MAP'}">🗺️</span>
+                 <span th:if="${resource.category.name() == 'AUDIO'}">🎧</span>
+                 <span th:if="${resource.category.name() == 'VIDEO'}">🎬</span>
+                 <span th:if="${resource.category.name() == 'DIGITAL'}">💻</span>
+             </span>
+         </div>
+         <div class="resource-body">
+             <a th:href="@{/resources/{id}(id=${resource.id})}" class="resource-title" th:text="${resource.title}">Titre</a>
+             <div class="resource-meta">
+                 <div th:text="${resource.author}">Auteur</div>
+                 <div th:text="${resource.category}">Catégorie</div>
+                 <div th:text="${resource.publicationYear}">Année</div>
+             </div>
+             <div class="spacer" style="flex: 1;"></div>
+             <div class="stack" style="justify-content: space-between; align-items: center;">
+                 <span th:if="${resource.availableCopies > 0}" class="status-badge status-available">
+                     Disponible (<span th:text="${resource.availableCopies}"></span>)
+                 </span>
+                 <span th:if="${resource.availableCopies == 0}" class="status-badge status-unavailable">
+                     Indisponible
+                 </span>
+                 <a th:href="@{/resources/{id}(id=${resource.id})}" class="btn btn-link">Voir</a>
+             </div>
+         </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div th:if="${resources.totalPages > 1}" class="pagination">
+        <a th:if="${resources.hasPrevious()}" 
+           th:href="@{/resources(page=${resources.number - 1}, size=${request.size}, query=${request.query}, author=${request.author}, category=${request.category}, available=${request.available}, yearMin=${request.yearMin}, yearMax=${request.yearMax}, sort=${request.sort}, direction=${request.direction})}" 
+           class="page-link">&laquo;</a>
+           
+        <span th:each="i : ${#numbers.sequence(0, resources.totalPages - 1)}">
+           <a th:href="@{/resources(page=${i}, size=${request.size}, query=${request.query}, author=${request.author}, category=${request.category}, available=${request.available}, yearMin=${request.yearMin}, yearMax=${request.yearMax}, sort=${request.sort}, direction=${request.direction})}"
+              th:class="${resources.number == i ? 'page-link active' : 'page-link'}"
+              th:text="${i + 1}">1</a>
+        </span>
+        
+        <a th:if="${resources.hasNext()}" 
+           th:href="@{/resources(page=${resources.number + 1}, size=${request.size}, query=${request.query}, author=${request.author}, category=${request.category}, available=${request.available}, yearMin=${request.yearMin}, yearMax=${request.yearMax}, sort=${request.sort}, direction=${request.direction})}" 
+           class="page-link">&raquo;</a>
+    </div>
+
+  </main>
+</div>
+</body>
+</html>

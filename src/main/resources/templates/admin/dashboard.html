@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div class="layout">
+  <aside th:replace="~{fragments/aside :: aside}"></aside>
+  <main class="main">
+    <div class="header">
+      <h1 class="title">Tableau de bord Administrateur</h1>
+      <div class="stack">
+         <div class="dropdown">
+           <button class="btn btn-secondary">Exporter Rapports</button>
+           <div class="dropdown-content">
+             <a th:href="@{/admin/reports/loans/csv}">Prêts (CSV)</a>
+             <a th:href="@{/admin/reports/loans/pdf}">Prêts (PDF)</a>
+             <a th:href="@{/admin/reports/users/csv}">Activité Utilisateurs (CSV)</a>
+             <a th:href="@{/admin/reports/resources/csv}">Usage Ressources (CSV)</a>
+           </div>
+         </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-stats" style="margin-bottom: 24px;">
+      <div class="card">
+        <div class="muted">Utilisateurs</div>
+        <div class="title" th:text="${totalUsers}">0</div>
+      </div>
+      <div class="card">
+        <div class="muted">Ressources</div>
+        <div class="title" th:text="${totalResources}">0</div>
+      </div>
+      <div class="card">
+        <div class="muted">Prêts Actifs</div>
+        <div class="title" style="color: blue;" th:text="${activeLoans}">0</div>
+      </div>
+      <div class="card">
+        <div class="muted">Revenus Amendes</div>
+        <div class="title" style="color: green;" th:text="${revenue} + ' DT'">0 DT</div>
+      </div>
+    </div>
+
+    <!-- Charts and Top Resources -->
+    <div class="grid grid-dashboard" style="gap: 24px;">
+      
+      <!-- Charts Column -->
+      <div class="stack-col" style="gap: 24px;">
+          <!-- Category Chart -->
+          <div class="card">
+            <h3 class="title">Prêts par Catégorie</h3>
+            <div class="chart-container">
+              <canvas id="categoryChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Line Chart -->
+          <div class="card">
+            <h3 class="title">Évolution des Prêts (Année en cours)</h3>
+            <div class="chart-container">
+              <canvas id="lineChart"></canvas>
+            </div>
+          </div>
+      </div>
+
+      <!-- Right Column -->
+      <div class="stack-col" style="gap: 24px;">
+          <!-- Top Resources -->
+          <div class="card">
+            <h3 class="title">Top 5 Ressources</h3>
+            <table class="table" style="width: 100%; border-collapse: collapse; margin-top: 16px;">
+               <thead>
+                 <tr style="border-bottom: 1px solid #e2e8f0; text-align: left;">
+                   <th style="padding: 8px;">Titre</th>
+                   <th style="padding: 8px;">Prêts</th>
+                 </tr>
+               </thead>
+               <tbody>
+                 <tr th:each="row : ${topResources}" style="border-bottom: 1px solid #f1f5f9;">
+                   <td style="padding: 8px;" th:text="${row[0].title}">Titre</td>
+                   <td style="padding: 8px;" th:text="${row[1]}">0</td>
+                 </tr>
+                 <tr th:if="${#lists.isEmpty(topResources)}">
+                   <td colspan="2" style="padding: 16px; text-align: center; color: #64748b;">Pas de données.</td>
+                 </tr>
+               </tbody>
+            </table>
+          </div>
+
+          <!-- Pie Chart -->
+          <div class="card">
+            <h3 class="title">Répartition par Statut</h3>
+            <div class="chart-container">
+              <canvas id="pieChart"></canvas>
+            </div>
+          </div>
+      </div>
+
+    </div>
+
+    <!-- User Management Link -->
+    <div class="card" style="margin-top: 24px;">
+      <h3 class="title">Gestion</h3>
+      <div class="stack">
+        <a th:href="@{/users}" class="btn btn-primary">Gérer les utilisateurs</a>
+        <a th:href="@{/libraries}" class="btn btn-primary">Gérer les bibliothèques</a>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const catLabels = /*[[${catLabels}]]*/ [];
+    const catData = /*[[${catData}]]*/ [];
+    const monthlyData = /*[[${monthlyData}]]*/ '[]';
+    const statusLabels = /*[[${statusLabels}]]*/ [];
+    const statusData = /*[[${statusData}]]*/ [];
+    
+    // Parse
+    const cLabels = typeof catLabels === 'string' ? eval(catLabels) : catLabels;
+    const cData = typeof catData === 'string' ? eval(catData) : catData;
+    const mData = typeof monthlyData === 'string' ? JSON.parse(monthlyData) : monthlyData;
+    const sLabels = typeof statusLabels === 'string' ? eval(statusLabels) : statusLabels;
+    const sData = typeof statusData === 'string' ? eval(statusData) : statusData;
+
+    // Category Chart (Bar)
+    const ctx = document.getElementById('categoryChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: cLabels,
+            datasets: [{
+                label: 'Nombre de prêts',
+                data: cData,
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+
+    // Line Chart
+    const ctxLine = document.getElementById('lineChart').getContext('2d');
+    new Chart(ctxLine, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'],
+            datasets: [{
+                label: 'Prêts',
+                data: mData,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                fill: false,
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+    
+    // Pie Chart
+    const ctxPie = document.getElementById('pieChart').getContext('2d');
+    new Chart(ctxPie, {
+        type: 'doughnut',
+        data: {
+            labels: sLabels,
+            datasets: [{
+                data: sData,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.5)',
+                    'rgba(54, 162, 235, 0.5)',
+                    'rgba(255, 206, 86, 0.5)',
+                    'rgba(75, 192, 192, 0.5)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+    /*]]>*/
+</script>
+</body>
+</html>
